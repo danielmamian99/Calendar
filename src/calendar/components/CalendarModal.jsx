@@ -10,7 +10,8 @@ import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import es from "date-fns/locale/es";
-import { useUiStore } from "../../hooks";
+import { useCalendarStore, useUiStore } from "../../hooks";
+import { useEffect } from "react";
 
 registerLocale("es", es);
 
@@ -29,13 +30,15 @@ Modal.setAppElement("#root");
 
 export const CalendarModal = () => {
 
+  const { activeEvent, startSavingEvent } = useCalendarStore();
+
   const{ isDateModalOpen, closeDateModal } = useUiStore()
   
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   const [formValues, setFormValues] = useState({
-    title: "Daniel",
-    notes: "Mamian",
+    title: "",
+    notes: "",
     start: new Date(),
     end: addHours(new Date(), 2),
   });
@@ -43,6 +46,15 @@ export const CalendarModal = () => {
   const titleClass = useMemo(() => {
     return !formSubmitted || formValues.title.length > 0 ? "" : "is-invalid";
   }, [formValues.title, formSubmitted]);
+
+  useEffect(() => {
+
+    if(activeEvent !== null){
+      setFormValues({...activeEvent});
+    }
+
+  }, [activeEvent])
+  
 
   const onInputChanged = ({ target }) => {
     setFormValues({
@@ -60,9 +72,10 @@ export const CalendarModal = () => {
 
   const onCloseModal = () => {
     closeDateModal();
+    setFormSubmitted(false);
   };
 
-  const onSubmit = (event) => {
+  const onSubmit = async(event) => {
     event.preventDefault();
     setFormSubmitted(true);
 
@@ -74,6 +87,10 @@ export const CalendarModal = () => {
     }
 
     if (formValues.title.length <= 0) return;
+
+    await startSavingEvent( formValues );
+    closeDateModal();
+    setFormSubmitted(false);
   };
 
   return (
