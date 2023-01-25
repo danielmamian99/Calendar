@@ -1,5 +1,12 @@
 .login-container{
-    margin-top: 15%;
+    display: flex;
+    justify-content: center;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    /* height: 100vh; */
+}
+.login-container_row{
+    width: 100%;
 }
 .login-form-1{
     border-radius: 5px;
